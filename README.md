@@ -1,6 +1,7 @@
 # Serpent Of Discord
-A Python wrapper around the Discord API
+A Python wrapper around the Discord API. Very early in development!
 
+##Example usage
 ```
 from SODClient import SODClient
 
