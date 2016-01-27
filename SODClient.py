@@ -21,7 +21,7 @@ class SODClient:
         """
         Logs you out. Invalidates authorization token.
         """
-        logoutRequest = SODAPIRequest.LogoutRequest()
+        logoutRequest = SODAPIRequest.LogoutRequest(self.token)
         logoutRequest.makeRequest()
         self.token = None
 

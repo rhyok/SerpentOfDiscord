@@ -56,8 +56,9 @@ class SODAPIRequest:
             conn = HTTPSConnection(SODAPIRequest.SODDiscordServerAddress)
             conn.request(self.method, self.endpoint, self.body, self.headers)
             response = conn.getresponse()
-            if response.status == httplib.OK:
-                return json.loads(response.read())
+            if response.status >= 200 and response.status < 300:
+                jsonresponse = response.read()
+                return json.loads(response.read()) if jsonresponse is not None else None
             else:
                 raise SODAPIRequestFailedException("Response was: " + str(response.status) + " " + response.reason)
         except Exception as e:
@@ -71,7 +72,7 @@ class SODAPIRequest:
 
     @staticmethod
     def LogoutRequest(token):
-        return SODAPIRequest("auth/logout", "POST", SODAPIRequest.SODStandardFormHeaders, {})
+        return SODAPIRequest("auth/logout", "POST", {"authorization": token, "Content-Type": "application/json"}, {})
 
     @staticmethod
     def SendMessageRequest(token, channelId, content):
