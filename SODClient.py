@@ -1,13 +1,20 @@
 from SODAPIRequest import SODAPIRequest
+from SODWebSocketClient import SODWebSocketClient
+from threading import Thread
 
+class SocketClientThread(Thread):
+    def __init__(self, wsc):
+        self.wsc = wsc
+        Thread.__init__(self)
+
+    def run(self):
+        self.wsc.startConnection()
 
 class SODClient:
-    """
-    A client for Discord, a chat application.
-    """
     def __init__(self, email, password):
         self.email = email
         self.password = password
+        self.webSocketClient = None
 
     def login(self):
         """
@@ -16,6 +23,19 @@ class SODClient:
         loginRequest = SODAPIRequest.LoginRequest(self.email, self.password)
         response = loginRequest.makeFormRequest()
         self.token = response["token"]
+
+        gatewayRequest = SODAPIRequest("gateway", "GET", {"authorization": self.token}, {})
+        response = gatewayRequest.makeRequest()
+        gateway = response["url"]
+
+        self.webSocketClient = SODWebSocketClient(self.token, gateway)
+
+        self.socketClientThread = SocketClientThread(self.webSocketClient)
+        try:
+            self.socketClientThread.start()
+        except KeyboardInterrupt:
+            pass
+        print "test"
 
     def logout(self):
         """
@@ -32,6 +52,9 @@ class SODClient:
         else:
             # Should raise exception here instead
             print "I cannot do it :<"
+
+    def getMessages(self):
+        return self.webSocketClient.getMessages()
 
     def sendMessageWithId(self, channelId, message):
         sendMessageRequest = SODAPIRequest.SendMessageRequest(self.token, channelId, message)

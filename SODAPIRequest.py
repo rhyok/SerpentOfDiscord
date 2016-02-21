@@ -58,7 +58,8 @@ class SODAPIRequest:
             response = conn.getresponse()
             if response.status >= 200 and response.status < 300:
                 jsonresponse = response.read()
-                return json.loads(response.read()) if jsonresponse is not None else None
+                print jsonresponse
+                return json.loads(jsonresponse) if jsonresponse is not None else None
             else:
                 raise SODAPIRequestFailedException("Response was: " + str(response.status) + " " + response.reason)
         except Exception as e:
